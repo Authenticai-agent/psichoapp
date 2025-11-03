@@ -19,7 +19,8 @@ def analyze_mood(journal_content: str) -> MoodAnalysis:
     Analyze journal entry for mood, sentiment, and insights
     """
     try:
-        model = genai.GenerativeModel('gemini-pro')
+        # Use gemini-1.5-flash or gemini-1.5-pro (newer model names)
+        model = genai.GenerativeModel('gemini-1.5-flash')
         
         prompt = f"""
         Analyze the following journal entry for mood and sentiment. Provide:
@@ -108,7 +109,8 @@ def generate_affirmation(user_mood: MoodLevel, context: str = None) -> str:
     Generate personalized daily affirmation based on mood
     """
     try:
-        model = genai.GenerativeModel('gemini-pro')
+        # Use gemini-1.5-flash or gemini-1.5-pro (newer model names)
+        model = genai.GenerativeModel('gemini-1.5-flash')
         
         mood_context = {
             MoodLevel.VERY_LOW: "The user is experiencing very low mood",
@@ -146,7 +148,8 @@ def suggest_activities(user_mood: MoodLevel, therapy_goals: List[str] = None) ->
     Suggest personalized daily activities based on mood and therapy goals
     """
     try:
-        model = genai.GenerativeModel('gemini-pro')
+        # Use gemini-1.5-flash or gemini-1.5-pro (newer model names)
+        model = genai.GenerativeModel('gemini-1.5-flash')
         
         goals_text = ", ".join(therapy_goals) if therapy_goals else "general wellness"
         

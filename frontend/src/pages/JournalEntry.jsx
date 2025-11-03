@@ -33,12 +33,39 @@ const JournalEntry = () => {
     recognition.continuous = true
     recognition.interimResults = true
 
+    // Track the last final result index to avoid duplicates
+    let lastFinalIndex = -1
+
     recognition.onresult = (event) => {
-      let transcript = ''
+      let finalTranscript = ''
+      let interimTranscript = ''
+      
       for (let i = event.resultIndex; i < event.results.length; i++) {
-        transcript += event.results[i][0].transcript
+        const transcript = event.results[i][0].transcript
+        
+        if (event.results[i].isFinal) {
+          // Only add final results that we haven't processed yet
+          if (i > lastFinalIndex) {
+            finalTranscript += transcript + ' '
+            lastFinalIndex = i
+          }
+        } else {
+          // Interim results for live feedback
+          interimTranscript += transcript
+        }
       }
-      setContent(prev => prev + transcript)
+      
+      // Update content: add final results, show interim results temporarily
+      if (finalTranscript) {
+        setContent(prev => {
+          // Remove any interim text that's now final, then add the final text
+          const cleaned = prev.trim()
+          return cleaned + (cleaned ? ' ' : '') + finalTranscript.trim()
+        })
+      }
+      
+      // Show interim results in real-time (optional - you can remove this if you don't want it)
+      // For now, we'll just show final results to avoid duplication
     }
 
     recognition.onerror = (event) => {
