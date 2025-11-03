@@ -116,7 +116,7 @@ SUPABASE_URL=https://abcdefghijklmnop.supabase.co
 SUPABASE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFiY2RlZmdoaWprbG1ub3AiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTYxNjIzOTAyMiwiZXhwIjoxOTMxODE1MDIyfQ.example
 SUPABASE_SERVICE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFiY2RlZmdoaWprbG1ub3AiLCJyb2xlIjoic2VydmljZV9yb2xlIiwiaWF0IjoxNjE2MjM5MDIyLCJleHAiOjE5MzE4MTUwMjJ9.example
 GEMINI_API_KEY=AIzaSyDxXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-JWT_SECRET=a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0u1v2w3x4y5z6
+JWT_SECRET=a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0u1v2w3x4xxx.example
 JWT_ALGORITHM=HS256
 JWT_EXPIRATION_HOURS=12
 ENVIRONMENT=development
@@ -126,8 +126,8 @@ CORS_ORIGINS=http://localhost:5173,http://localhost:3000
 ### Frontend `.env` Example (Local Development)
 
 ```env
-VITE_SUPABASE_URL=https://abcdefghijklmnop.supabase.co
-VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFiY2RlZmdoaWprbG1ub3AiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTYxNjIzOTAyMiwiZXhwIjoxOTMxODE1MDIyfQ.example
+VITE_SUPABASE_URL=xxxxx
+VITE_SUPABASE_ANON_KEY=xxxxxx
 VITE_API_URL=http://localhost:8000
 ```
 

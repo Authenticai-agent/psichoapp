@@ -5,8 +5,7 @@ import axios from 'axios'
 import { ArrowLeft, Calendar, TrendingUp } from 'lucide-react'
 import { format } from 'date-fns'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+import { API_URL } from '../config/api'
 
 const JournalHistory = () => {
   const { user } = useAuth()

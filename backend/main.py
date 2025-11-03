@@ -33,13 +33,20 @@ app = FastAPI(
 )
 
 # CORS configuration
-cors_origins = os.getenv("CORS_ORIGINS", "http://localhost:5173").split(",")
+cors_origins_str = os.getenv("CORS_ORIGINS", "http://localhost:5173,http://localhost:3000")
+# Add Netlify domain if not already included
+default_netlify_domain = "https://psichoapp.netlify.app"
+if default_netlify_domain not in cors_origins_str:
+    cors_origins_str += f",{default_netlify_domain}"
+cors_origins = [origin.strip() for origin in cors_origins_str.split(",") if origin.strip()]
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["*"],
 )
 
 # Include routers

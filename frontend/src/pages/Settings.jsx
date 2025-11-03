@@ -3,8 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import axios from 'axios'
 import { ArrowLeft, User, Bell, Shield, LogOut } from 'lucide-react'
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+import { API_URL } from '../config/api'
 
 const Settings = () => {
   const { user, logout } = useAuth()
