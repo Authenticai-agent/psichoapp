@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useNavigate, useLocation } from 'react-router-dom'
+import { useNavigate, useLocation, useParams } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import axios from 'axios'
 import { ArrowLeft, Mic, Save } from 'lucide-react'
@@ -9,7 +9,7 @@ const JournalEntry = () => {
   const { user } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
-  const entryId = location.pathname.includes('/edit/') ? location.pathname.split('/edit/')[1] : null
+  const { entryId } = useParams()
   const existingEntry = location.state?.entry || null
   
   const [content, setContent] = useState(existingEntry?.content || '')
