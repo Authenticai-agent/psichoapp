@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import axios from 'axios'
-import { ArrowLeft, Calendar, TrendingUp } from 'lucide-react'
+import { ArrowLeft, Calendar, TrendingUp, Trash2, Edit2 } from 'lucide-react'
 import { format } from 'date-fns'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import { API_URL } from '../config/api'
@@ -13,6 +13,8 @@ const JournalHistory = () => {
   const [entries, setEntries] = useState([])
   const [loading, setLoading] = useState(true)
   const [moodData, setMoodData] = useState([])
+  const [editingEntry, setEditingEntry] = useState(null)
+  const [deleteConfirm, setDeleteConfirm] = useState(null)
 
   useEffect(() => {
     fetchEntries()
@@ -47,6 +49,34 @@ const JournalHistory = () => {
     } finally {
       setLoading(false)
     }
+  }
+
+  const handleDelete = async (entryId) => {
+    if (!deleteConfirm || deleteConfirm !== entryId) {
+      setDeleteConfirm(entryId)
+      return
+    }
+
+    try {
+      await axios.delete(`${API_URL}/api/journal/${entryId}`)
+      // Remove from local state
+      setEntries(entries.filter(e => e.id !== entryId))
+      setDeleteConfirm(null)
+      // Refresh mood data
+      fetchEntries()
+    } catch (error) {
+      console.error('Error deleting entry:', error)
+      alert('Failed to delete entry. Please try again.')
+    }
+  }
+
+  const handleEdit = (entry) => {
+    setEditingEntry(entry)
+    navigate(`/client/journal/edit/${entry.id}`, { state: { entry } })
+  }
+
+  const handleCancelDelete = () => {
+    setDeleteConfirm(null)
   }
 
   if (loading) {
@@ -124,11 +154,44 @@ const JournalHistory = () => {
                         </span>
                       )}
                     </div>
-                    {entry.mood && (
-                      <span className="text-xs px-3 py-1 bg-primary-100 text-primary-700 rounded-full capitalize">
-                        {entry.mood.value || entry.mood}
-                      </span>
-                    )}
+                    <div className="flex items-center gap-2">
+                      {entry.mood && (
+                        <span className="text-xs px-3 py-1 bg-primary-100 text-primary-700 rounded-full capitalize">
+                          {entry.mood.value || entry.mood}
+                        </span>
+                      )}
+                      <button
+                        onClick={() => handleEdit(entry)}
+                        className="p-2 text-gray-600 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition"
+                        title="Edit entry"
+                      >
+                        <Edit2 className="w-4 h-4" />
+                      </button>
+                      {deleteConfirm === entry.id ? (
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => handleDelete(entry.id)}
+                            className="px-3 py-1 text-xs bg-red-600 text-white rounded hover:bg-red-700"
+                          >
+                            Confirm
+                          </button>
+                          <button
+                            onClick={handleCancelDelete}
+                            className="px-3 py-1 text-xs bg-gray-200 text-gray-700 rounded hover:bg-gray-300"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => handleDelete(entry.id)}
+                          className="p-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition"
+                          title="Delete entry"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      )}
+                    </div>
                   </div>
 
                   <p className="text-gray-700 mb-4 whitespace-pre-wrap">{entry.content}</p>

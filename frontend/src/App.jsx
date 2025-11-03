@@ -34,6 +34,14 @@ function App() {
               }
             />
             <Route
+              path="/client/journal/edit/:entryId"
+              element={
+                <PrivateRoute allowedRoles={['client']}>
+                  <JournalEntry />
+                </PrivateRoute>
+              }
+            />
+            <Route
               path="/client/journal/history"
               element={
                 <PrivateRoute allowedRoles={['client']}>

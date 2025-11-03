@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import axios from 'axios'
 import { ArrowLeft, Mic, Save } from 'lucide-react'
@@ -8,12 +8,18 @@ import { API_URL } from '../config/api'
 const JournalEntry = () => {
   const { user } = useAuth()
   const navigate = useNavigate()
-  const [content, setContent] = useState('')
-  const [mood, setMood] = useState('')
-  const [isVoice, setIsVoice] = useState(false)
+  const location = useLocation()
+  const entryId = location.pathname.includes('/edit/') ? location.pathname.split('/edit/')[1] : null
+  const existingEntry = location.state?.entry || null
+  
+  const [content, setContent] = useState(existingEntry?.content || '')
+  const [mood, setMood] = useState(existingEntry?.mood?.value || existingEntry?.mood || '')
+  const [isVoice, setIsVoice] = useState(existingEntry?.is_voice || false)
   const [isRecording, setIsRecording] = useState(false)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
+  
+  const isEditing = !!entryId && !!existingEntry
 
   const startVoiceRecording = () => {
     if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
@@ -95,17 +101,28 @@ const JournalEntry = () => {
     setSaving(true)
 
     try {
-      const response = await axios.post(`${API_URL}/api/journal`, {
-        content,
-        mood: mood || null,
-        is_voice: isVoice,
-      })
+      let response
+      if (isEditing) {
+        // Update existing entry
+        response = await axios.put(`${API_URL}/api/journal/${entryId}`, {
+          content,
+          mood: mood || null,
+          is_voice: isVoice,
+        })
+      } else {
+        // Create new entry
+        response = await axios.post(`${API_URL}/api/journal`, {
+          content,
+          mood: mood || null,
+          is_voice: isVoice,
+        })
+      }
 
       if (response.data) {
-        navigate('/client')
+        navigate('/client/journal/history')
       }
     } catch (err) {
-      setError(err.response?.data?.detail || 'Failed to save journal entry')
+      setError(err.response?.data?.detail || `Failed to ${isEditing ? 'update' : 'save'} journal entry`)
     } finally {
       setSaving(false)
     }
@@ -122,7 +139,9 @@ const JournalEntry = () => {
             >
               <ArrowLeft className="w-5 h-5" />
             </button>
-            <h1 className="text-2xl font-bold text-primary-700">New Journal Entry</h1>
+            <h1 className="text-2xl font-bold text-primary-700">
+              {isEditing ? 'Edit Journal Entry' : 'New Journal Entry'}
+            </h1>
           </div>
         </div>
       </header>
@@ -200,7 +219,7 @@ const JournalEntry = () => {
               className="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
               <Save className="w-4 h-4" />
-              {saving ? 'Saving...' : 'Save Entry'}
+              {saving ? (isEditing ? 'Updating...' : 'Saving...') : (isEditing ? 'Update Entry' : 'Save Entry')}
             </button>
           </div>
         </form>

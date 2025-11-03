@@ -137,6 +137,156 @@ async def get_my_journals(
         )
 
 
+@router.put("/{entry_id}", response_model=JournalEntryResponse)
+async def update_journal_entry(
+    entry_id: str,
+    entry: JournalEntryCreate,
+    req: Request,
+    current_user: dict = Depends(get_current_client)
+):
+    """Update a journal entry"""
+    try:
+        supabase = get_supabase()
+        user_id = current_user["id"]
+        
+        # Verify entry exists and belongs to user
+        existing = supabase.table("journals")\
+            .select("*")\
+            .eq("id", entry_id)\
+            .eq("user_id", user_id)\
+            .execute()
+        
+        if not existing.data:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Journal entry not found"
+            )
+        
+        # Analyze mood if content changed
+        mood = entry.mood
+        ai_analysis = existing.data[0].get("ai_analysis")
+        
+        if entry.content and (not entry.mood or entry.content != existing.data[0].get("content")):
+            # Run AI analysis on new content
+            analysis = analyze_mood(entry.content)
+            mood = analysis.mood
+            ai_analysis = {
+                "mood": analysis.mood.value,
+                "sentiment": analysis.sentiment,
+                "summary": analysis.summary,
+                "keywords": analysis.keywords,
+                "recommendations": analysis.recommendations,
+                "confidence": analysis.confidence
+            }
+        
+        # Update journal entry
+        update_data = {
+            "content": entry.content,
+            "mood": mood.value if mood else existing.data[0].get("mood"),
+            "tags": entry.tags or existing.data[0].get("tags", []),
+            "is_voice": entry.is_voice,
+            "ai_analysis": ai_analysis,
+            "updated_at": datetime.utcnow().isoformat()
+        }
+        
+        result = supabase.table("journals")\
+            .update(update_data)\
+            .eq("id", entry_id)\
+            .eq("user_id", user_id)\
+            .execute()
+        
+        if not result.data:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Failed to update journal entry"
+            )
+        
+        updated_entry = result.data[0]
+        
+        # Log audit event
+        log_audit_event(
+            user_id=user_id,
+            action="update",
+            resource_type="journal",
+            resource_id=entry_id,
+            ip_address=req.client.host if req.client else None,
+            user_agent=req.headers.get("user-agent")
+        )
+        
+        return JournalEntryResponse(
+            id=updated_entry["id"],
+            user_id=updated_entry["user_id"],
+            content=updated_entry["content"],
+            mood=updated_entry.get("mood"),
+            tags=updated_entry.get("tags"),
+            is_voice=updated_entry.get("is_voice", False),
+            created_at=datetime.fromisoformat(updated_entry["created_at"]),
+            ai_analysis=updated_entry.get("ai_analysis")
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error updating journal entry: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to update journal entry: {str(e)}"
+        )
+
+
+@router.delete("/{entry_id}")
+async def delete_journal_entry(
+    entry_id: str,
+    req: Request,
+    current_user: dict = Depends(get_current_client)
+):
+    """Delete a journal entry"""
+    try:
+        supabase = get_supabase()
+        user_id = current_user["id"]
+        
+        # Verify entry exists and belongs to user
+        existing = supabase.table("journals")\
+            .select("id, user_id")\
+            .eq("id", entry_id)\
+            .eq("user_id", user_id)\
+            .execute()
+        
+        if not existing.data:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Journal entry not found"
+            )
+        
+        # Delete entry
+        result = supabase.table("journals")\
+            .delete()\
+            .eq("id", entry_id)\
+            .eq("user_id", user_id)\
+            .execute()
+        
+        # Log audit event
+        log_audit_event(
+            user_id=user_id,
+            action="delete",
+            resource_type="journal",
+            resource_id=entry_id,
+            ip_address=req.client.host if req.client else None,
+            user_agent=req.headers.get("user-agent")
+        )
+        
+        return {"message": "Journal entry deleted successfully", "id": entry_id}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error deleting journal entry: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to delete journal entry"
+        )
+
+
 @router.get("/{entry_id}", response_model=JournalEntryResponse)
 async def get_journal_entry(
     entry_id: str,
