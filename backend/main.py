@@ -12,6 +12,7 @@ from dotenv import load_dotenv
 
 from app.routers import auth, journal, ai, therapist, feedback
 from app.database import init_db
+from app.config import settings
 
 load_dotenv()
 
@@ -33,8 +34,6 @@ app = FastAPI(
 )
 
 # CORS configuration - use settings from config
-from app.config import settings
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins,
