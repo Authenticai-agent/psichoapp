@@ -77,9 +77,7 @@ async def signup(request: SignUpRequest, req: Request):
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=f"Registration failed: {error_msg}"
             )
-        raise
-    except Exception as e:
-        logger.error(f"Error during signup: {str(e)}")
+        logger.error(f"Error during signup: {error_msg}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Internal server error during registration"
@@ -141,9 +139,7 @@ async def login(request: LoginRequest, req: Request):
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid email or password"
             )
-        raise
-    except Exception as e:
-        logger.error(f"Error during login: {str(e)}")
+        logger.error(f"Error during login: {error_msg}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Internal server error during login"
