@@ -1,5 +1,6 @@
 {
   "$schema": "https://railway.app/railway.schema.json",
+  "$comment": "This file is for reference. Railway will use the root railway.json",
   "build": {
     "builder": "NIXPACKS",
     "buildCommand": "pip install -r requirements.txt"
