@@ -18,8 +18,31 @@ const JournalEntry = () => {
   const [isRecording, setIsRecording] = useState(false)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
+  const [loading, setLoading] = useState(!!entryId && !existingEntry)
   
-  const isEditing = !!entryId && !!existingEntry
+  const isEditing = !!entryId
+
+  // Fetch entry if editing and not in state
+  useEffect(() => {
+    if (entryId && !existingEntry) {
+      const fetchEntry = async () => {
+        try {
+          const response = await axios.get(`${API_URL}/api/journal/${entryId}`)
+          const entry = response.data
+          setContent(entry.content)
+          setMood(entry.mood?.value || entry.mood || '')
+          setIsVoice(entry.is_voice || false)
+        } catch (error) {
+          console.error('Error fetching entry:', error)
+          setError('Failed to load journal entry')
+          navigate('/client/journal/history')
+        } finally {
+          setLoading(false)
+        }
+      }
+      fetchEntry()
+    }
+  }, [entryId, existingEntry, navigate])
 
   const startVoiceRecording = () => {
     if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
@@ -128,13 +151,21 @@ const JournalEntry = () => {
     }
   }
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       <header className="bg-white shadow-sm">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center gap-4">
             <button
-              onClick={() => navigate('/client')}
+              onClick={() => navigate('/client/journal/history')}
               className="p-2 text-gray-600 hover:text-primary-600"
             >
               <ArrowLeft className="w-5 h-5" />
