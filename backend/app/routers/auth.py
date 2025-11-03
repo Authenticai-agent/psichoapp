@@ -7,7 +7,6 @@ from app.models import SignUpRequest, LoginRequest, AuthResponse
 from app.database import get_supabase_client, get_supabase
 from app.utils.auth import create_access_token
 from app.utils.audit import log_audit_event
-from supabase import AuthError
 import logging
 
 logger = logging.getLogger(__name__)
@@ -69,12 +68,16 @@ async def signup(request: SignUpRequest, req: Request):
             }
         )
         
-    except AuthError as e:
-        logger.error(f"Auth error during signup: {str(e)}")
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Registration failed: {str(e)}"
-        )
+    except Exception as e:
+        # Check if it's an auth-related error
+        error_msg = str(e)
+        if "auth" in error_msg.lower() or "email" in error_msg.lower() or "password" in error_msg.lower():
+            logger.error(f"Auth error during signup: {error_msg}")
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Registration failed: {error_msg}"
+            )
+        raise
     except Exception as e:
         logger.error(f"Error during signup: {str(e)}")
         raise HTTPException(
@@ -129,12 +132,16 @@ async def login(request: LoginRequest, req: Request):
             user=user_data
         )
         
-    except AuthError as e:
-        logger.error(f"Auth error during login: {str(e)}")
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid email or password"
-        )
+    except Exception as e:
+        # Check if it's an auth-related error
+        error_msg = str(e)
+        if "auth" in error_msg.lower() or "email" in error_msg.lower() or "password" in error_msg.lower() or "invalid" in error_msg.lower():
+            logger.error(f"Auth error during login: {error_msg}")
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid email or password"
+            )
+        raise
     except Exception as e:
         logger.error(f"Error during login: {str(e)}")
         raise HTTPException(
