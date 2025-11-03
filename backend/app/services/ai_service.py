@@ -21,7 +21,12 @@ def analyze_mood(journal_content: str) -> MoodAnalysis:
     try:
         # Use cheapest model: gemini-1.5-flash (has free tier, $0.075 per 1M input tokens)
         # Alternative: gemini-2.0-flash-lite ($0.019 per 1M tokens) if available
-        model = genai.GenerativeModel(settings.gemini_model)
+        model_name = settings.gemini_model or "gemini-1.5-flash"
+        # Ensure we're not using deprecated gemini-pro
+        if model_name == "gemini-pro":
+            model_name = "gemini-1.5-flash"
+            logger.warning("gemini-pro is deprecated, using gemini-1.5-flash instead")
+        model = genai.GenerativeModel(model_name)
         
         prompt = f"""
         Analyze the following journal entry for mood and sentiment. Provide:
@@ -112,7 +117,12 @@ def generate_affirmation(user_mood: MoodLevel, context: str = None) -> str:
     try:
         # Use cheapest model: gemini-1.5-flash (has free tier, $0.075 per 1M input tokens)
         # Alternative: gemini-2.0-flash-lite ($0.019 per 1M tokens) if available
-        model = genai.GenerativeModel(settings.gemini_model)
+        model_name = settings.gemini_model or "gemini-1.5-flash"
+        # Ensure we're not using deprecated gemini-pro
+        if model_name == "gemini-pro":
+            model_name = "gemini-1.5-flash"
+            logger.warning("gemini-pro is deprecated, using gemini-1.5-flash instead")
+        model = genai.GenerativeModel(model_name)
         
         mood_context = {
             MoodLevel.VERY_LOW: "The user is experiencing very low mood",
@@ -152,7 +162,12 @@ def suggest_activities(user_mood: MoodLevel, therapy_goals: List[str] = None) ->
     try:
         # Use cheapest model: gemini-1.5-flash (has free tier, $0.075 per 1M input tokens)
         # Alternative: gemini-2.0-flash-lite ($0.019 per 1M tokens) if available
-        model = genai.GenerativeModel(settings.gemini_model)
+        model_name = settings.gemini_model or "gemini-1.5-flash"
+        # Ensure we're not using deprecated gemini-pro
+        if model_name == "gemini-pro":
+            model_name = "gemini-1.5-flash"
+            logger.warning("gemini-pro is deprecated, using gemini-1.5-flash instead")
+        model = genai.GenerativeModel(model_name)
         
         goals_text = ", ".join(therapy_goals) if therapy_goals else "general wellness"
         
