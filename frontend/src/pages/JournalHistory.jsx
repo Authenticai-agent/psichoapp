@@ -13,7 +13,6 @@ const JournalHistory = () => {
   const [entries, setEntries] = useState([])
   const [loading, setLoading] = useState(true)
   const [moodData, setMoodData] = useState([])
-  const [editingEntry, setEditingEntry] = useState(null)
   const [deleteConfirm, setDeleteConfirm] = useState(null)
 
   useEffect(() => {
@@ -71,7 +70,6 @@ const JournalHistory = () => {
   }
 
   const handleEdit = (entry) => {
-    setEditingEntry(entry)
     navigate(`/client/journal/edit/${entry.id}`, { state: { entry } })
   }
 
