@@ -19,8 +19,9 @@ def analyze_mood(journal_content: str) -> MoodAnalysis:
     Analyze journal entry for mood, sentiment, and insights
     """
     try:
-        # Use gemini-1.5-flash or gemini-1.5-pro (newer model names)
-        model = genai.GenerativeModel('gemini-1.5-flash')
+        # Use cheapest model: gemini-1.5-flash (has free tier, $0.075 per 1M input tokens)
+        # Alternative: gemini-2.0-flash-lite ($0.019 per 1M tokens) if available
+        model = genai.GenerativeModel(settings.gemini_model)
         
         prompt = f"""
         Analyze the following journal entry for mood and sentiment. Provide:
@@ -109,8 +110,9 @@ def generate_affirmation(user_mood: MoodLevel, context: str = None) -> str:
     Generate personalized daily affirmation based on mood
     """
     try:
-        # Use gemini-1.5-flash or gemini-1.5-pro (newer model names)
-        model = genai.GenerativeModel('gemini-1.5-flash')
+        # Use cheapest model: gemini-1.5-flash (has free tier, $0.075 per 1M input tokens)
+        # Alternative: gemini-2.0-flash-lite ($0.019 per 1M tokens) if available
+        model = genai.GenerativeModel(settings.gemini_model)
         
         mood_context = {
             MoodLevel.VERY_LOW: "The user is experiencing very low mood",
@@ -148,8 +150,9 @@ def suggest_activities(user_mood: MoodLevel, therapy_goals: List[str] = None) ->
     Suggest personalized daily activities based on mood and therapy goals
     """
     try:
-        # Use gemini-1.5-flash or gemini-1.5-pro (newer model names)
-        model = genai.GenerativeModel('gemini-1.5-flash')
+        # Use cheapest model: gemini-1.5-flash (has free tier, $0.075 per 1M input tokens)
+        # Alternative: gemini-2.0-flash-lite ($0.019 per 1M tokens) if available
+        model = genai.GenerativeModel(settings.gemini_model)
         
         goals_text = ", ".join(therapy_goals) if therapy_goals else "general wellness"
         

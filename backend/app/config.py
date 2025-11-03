@@ -17,6 +17,7 @@ class Settings(BaseSettings):
     
     # Gemini AI
     gemini_api_key: str
+    gemini_model: str = "gemini-1.5-flash"  # Cheapest model: gemini-1.5-flash (free tier available)
     
     # JWT
     jwt_secret: str
