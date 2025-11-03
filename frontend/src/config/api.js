@@ -6,18 +6,34 @@
 // Get API URL from environment variable
 // In production, this should be set in Netlify environment variables
 // For local development, it defaults to localhost:8000
-export const API_URL = import.meta.env.VITE_API_URL || 
-  (import.meta.env.MODE === 'production' 
-    ? 'https://your-backend.railway.app'  // Update this with your actual Railway backend URL
-    : 'http://localhost:8000')
-
-// Log API URL in development (helps with debugging)
-if (import.meta.env.DEV) {
-  console.log('API URL:', API_URL)
+const getApiUrl = () => {
+  // First check if explicitly set
+  if (import.meta.env.VITE_API_URL) {
+    return import.meta.env.VITE_API_URL
+  }
+  
+  // In production, show error if not set
+  if (import.meta.env.MODE === 'production') {
+    console.error('❌ CRITICAL: VITE_API_URL environment variable is not set!')
+    console.error('Please set VITE_API_URL in Netlify Dashboard → Site Settings → Environment Variables')
+    console.error('Example: https://your-backend.railway.app')
+    // Return a placeholder that will show clear error
+    return 'MISSING_API_URL'
+  }
+  
+  // Development fallback
+  return 'http://localhost:8000'
 }
 
-// If in production and no API URL is set, show warning
-if (import.meta.env.MODE === 'production' && !import.meta.env.VITE_API_URL) {
-  console.warn('⚠️ VITE_API_URL is not set! API calls will fail. Please set it in Netlify environment variables.')
+export const API_URL = getApiUrl()
+
+// Log API URL (helps with debugging)
+console.log('🔗 API URL:', API_URL)
+console.log('🌍 Environment:', import.meta.env.MODE)
+console.log('📦 VITE_API_URL set:', !!import.meta.env.VITE_API_URL)
+
+// Show error if API URL is missing in production
+if (API_URL === 'MISSING_API_URL') {
+  console.error('🚨 API calls will fail! Set VITE_API_URL in Netlify environment variables.')
 }
 

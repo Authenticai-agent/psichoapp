@@ -43,6 +43,13 @@ export const AuthProvider = ({ children }) => {
   }
 
   const login = async (email, password) => {
+    if (API_URL === 'MISSING_API_URL') {
+      return {
+        success: false,
+        error: 'API URL not configured. Please set VITE_API_URL in Netlify environment variables.',
+      }
+    }
+    
     try {
       const response = await axios.post(`${API_URL}/api/auth/login`, {
         email,
@@ -69,6 +76,13 @@ export const AuthProvider = ({ children }) => {
   }
 
   const signup = async (email, password, fullName, role = 'client') => {
+    if (API_URL === 'MISSING_API_URL') {
+      return {
+        success: false,
+        error: 'API URL not configured. Please set VITE_API_URL in Netlify environment variables.',
+      }
+    }
+    
     try {
       const response = await axios.post(`${API_URL}/api/auth/signup`, {
         email,
